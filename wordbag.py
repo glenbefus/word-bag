@@ -9,14 +9,15 @@ import sys
 
 class WordBag:
     def __init__(self):
+        self._two_letter_words = {"at", "it", "am"}
         with open("/usr/share/dict/words", "r") as f:
             self._word_dictionary = frozenset(f.read().splitlines())
 
     def find_words_from_string_letters(self, bag_of_chars):
         letters = self._str_to_list(bag_of_chars)
 
-        # TODO remove single character
-        perms = set(self._get_permutations([""], letters))
+        perms = frozenset(self._get_permutations([""], letters))
+        perms = filter(lambda x: len(x) > 2 or x.lower() in self._two_letter_words, perms)
 
         found_words = self._word_dictionary.intersection(perms)
 
