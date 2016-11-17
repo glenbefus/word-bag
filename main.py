@@ -15,5 +15,9 @@ def main(args):
 
     print(letters)
 
+    with open("/usr/share/dict/words", "r") as f:
+        dictionary = set(f.read().splitlines())
+        print(str(dictionary))
+
 if __name__ == '__main__':
     sys.exit(main(sys.argv))
