@@ -9,12 +9,11 @@ import sys
 
 class WordBag:
     def __init__(self):
-        self._two_letter_words = frozenset(["at", "it", "am"])
         with open("/usr/share/dict/words", "r") as f:
             self._word_dictionary = frozenset(f.read().splitlines())
 
     def find_words_from_string_letters(self, bag_of_chars):
-        letters = self._str_to_list(bag_of_chars.lower())
+        letters = self._str_to_list(bag_of_chars)
 
         possible_words = self._get_possible_words(letters)
 
@@ -23,9 +22,7 @@ class WordBag:
         self._print_words(found_words_set)
 
     def _get_possible_words(self, letters):
-        possible_words = frozenset(self._get_permutations([""], letters))
-        possible_words = filter(lambda x: len(x) > 2 or x.lower() in self._two_letter_words, possible_words)
-        return possible_words
+        return frozenset(self._get_permutations([""], letters))
 
     def _get_permutations(self, list_curr_permutations, list_remaining_letters):
         if not list_remaining_letters:
