@@ -9,7 +9,7 @@ import sys
 
 class WordBag:
     def __init__(self):
-        self._two_letter_words = {"at", "it", "am"}
+        self._two_letter_words = frozenset(["at", "it", "am"])
         with open("/usr/share/dict/words", "r") as f:
             self._word_dictionary = frozenset(f.read().splitlines())
 
@@ -42,9 +42,9 @@ class WordBag:
         return list_curr_permutations + results
 
     @staticmethod
-    def _str_to_list(strng):
+    def _str_to_list(string):
         char_list = []
-        for c in strng:
+        for c in string:
             char_list.append(c)
 
         return char_list
