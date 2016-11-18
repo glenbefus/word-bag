@@ -14,15 +14,18 @@ class WordBag:
             self._word_dictionary = frozenset(f.read().splitlines())
 
     def find_words_from_string_letters(self, bag_of_chars):
-        letters = self._str_to_list(bag_of_chars)
+        letters = self._str_to_list(bag_of_chars.lower())
 
-        perms = frozenset(self._get_permutations([""], letters))
-        perms = filter(lambda x: len(x) > 2 or x.lower() in self._two_letter_words, perms)
+        possible_words = self._get_possible_words(letters)
 
-        found_words = self._word_dictionary.intersection(perms)
+        found_words_set = self._word_dictionary.intersection(possible_words)
 
-        # TODO: format output
-        print(str(found_words))
+        self._print_words(found_words_set)
+
+    def _get_possible_words(self, letters):
+        possible_words = frozenset(self._get_permutations([""], letters))
+        possible_words = filter(lambda x: len(x) > 2 or x.lower() in self._two_letter_words, possible_words)
+        return possible_words
 
     def _get_permutations(self, list_curr_permutations, list_remaining_letters):
         if not list_remaining_letters:
@@ -40,6 +43,12 @@ class WordBag:
             results += self._get_permutations(sub_results, rest_of_letters)
 
         return list_curr_permutations + results
+
+    def _print_words(self, found_words):
+        found_words_list = list(found_words)
+        found_words_list.sort()
+        for word in found_words_list:
+            print(word)
 
     @staticmethod
     def _str_to_list(string):
