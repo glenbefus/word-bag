@@ -7,17 +7,18 @@
 import sys
 
 
-class WordBag:
+class WordBag(object):
+    _word_dictionary = None
+
     def __init__(self):
-        with open("/usr/share/dict/words", "r") as f:
-            self._word_dictionary = frozenset(f.read().splitlines())
+        self._load_words_dictionary()
 
     def find_words_from_string_letters(self, bag_of_chars):
         letters = self._str_to_list(bag_of_chars)
 
         possible_words = self._get_possible_words(letters)
 
-        found_words_set = self._word_dictionary.intersection(possible_words)
+        found_words_set = WordBag._word_dictionary.intersection(possible_words)
 
         self._print_words(found_words_set)
 
@@ -41,7 +42,14 @@ class WordBag:
 
         return list_curr_permutations + results
 
-    def _print_words(self, found_words):
+    @staticmethod
+    def _load_words_dictionary():
+        if not WordBag._word_dictionary:
+            with open("/usr/share/dict/words", "r") as f:
+                WordBag._word_dictionary = frozenset(f.read().splitlines())
+
+    @staticmethod
+    def _print_words(found_words):
         found_words_list = list(found_words)
         found_words_list.sort()
         for word in found_words_list:
