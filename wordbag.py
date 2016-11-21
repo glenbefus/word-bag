@@ -5,6 +5,7 @@
 #
 
 import sys
+from datetime import datetime
 
 
 class WordBag(object):
@@ -69,8 +70,12 @@ def main(args):
         print("Only one argument allowed.")
         return
 
+    start = datetime.now()
     wordbag = WordBag()
     wordbag.find_words_from_string_letters(args[1])
+    end = datetime.now()
+
+    print("\nFound words in {0} seconds".format((end - start).seconds))
 
 
 if __name__ == '__main__':
