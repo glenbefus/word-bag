@@ -6,6 +6,7 @@
 
 import sys
 from argparse import ArgumentParser
+from argparse import FileType
 from datetime import datetime
 
 
@@ -62,14 +63,12 @@ class WordBag(object):
 
 
 def main():
-    parser = ArgumentParser()
-    parser.add_argument("letters", help="list of letters")
-    parser.add_argument("-b", "--benchmark", action="store_true",
-                        help="print how long the program ran for")
-
-    args = parser.parse_args()
+    args = parse_arguments()
 
     letters = args.letters
+    if not letters:
+        for line in args.infile:
+            letters += line
 
     if args.benchmark:
         start = datetime.now()
@@ -80,6 +79,18 @@ def main():
         print("\nFound words in {0} milliseconds".format((end - start).microseconds / 1000))
     else:
         find_words(letters)
+
+
+def parse_arguments():
+    parser = ArgumentParser()
+    parser.add_argument("infile", nargs="?", type=FileType("r"), default=sys.stdin,
+                        help="file name for input, default is stdin")
+    parser.add_argument("outfile", nargs="?", type=FileType("w"), default=sys.stdout,
+                        help="file name for output, default is stdout")
+    parser.add_argument("-l", "--letters", help="list of letters, alternative to infile", default="", )
+    parser.add_argument("-b", "--benchmark", action="store_true",
+                        help="print how long the program ran for")
+    return parser.parse_args()
 
 
 def find_words(letters):
