@@ -5,6 +5,7 @@
 #
 
 import sys
+from argparse import ArgumentParser
 from datetime import datetime
 
 
@@ -15,7 +16,7 @@ class WordBag(object):
         self._load_words_dictionary()
 
     def find_words_from_string_letters(self, bag_of_chars):
-        letters = self._str_to_list(bag_of_chars)
+        letters = list(filter(lambda x: x.isalpha(), iter(bag_of_chars)))
 
         possible_words = self._get_possible_words(letters)
 
@@ -61,27 +62,32 @@ class WordBag(object):
         for word in found_words_list:
             print(word)
 
-    @staticmethod
-    def _str_to_list(string):
-        char_list = []
-        for c in string:
-            char_list.append(c)
 
-        return char_list
+def main():
+    parser = ArgumentParser()
+    parser.add_argument("letters", help="list of letters")
+    parser.add_argument("-b", "--benchmark", action="store_true",
+                        help="print how long the program ran for")
+
+    args = parser.parse_args()
+
+    letters = args.letters
+
+    if args.benchmark:
+        start = datetime.now()
+
+        find_words(letters)
+
+        end = datetime.now()
+        print("\nFound words in {0} milliseconds".format((end - start).microseconds / 1000))
+    else:
+        find_words(letters)
 
 
-def main(args):
-    if len(args) != 2:
-        print("Only one argument allowed.")
-        return
-
-    start = datetime.now()
+def find_words(letters):
     wordbag = WordBag()
-    wordbag.find_words_from_string_letters(args[1])
-    end = datetime.now()
-
-    print("\nFound words in {0} seconds".format((end - start).seconds))
+    wordbag.find_words_from_string_letters(letters)
 
 
 if __name__ == '__main__':
-    sys.exit(main(sys.argv))
+    sys.exit(main())
