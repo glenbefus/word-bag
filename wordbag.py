@@ -57,9 +57,7 @@ class WordBag(object):
 
     @staticmethod
     def _print_words(found_words):
-        found_words_list = list(found_words)
-        found_words_list.sort()
-        for word in found_words_list:
+        for word in sorted(found_words):
             print(word)
 
 
