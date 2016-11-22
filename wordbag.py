@@ -5,19 +5,22 @@
 #
 
 import sys
+from argparse import ArgumentParser
+from datetime import datetime
 
 
-class WordBag:
+class WordBag(object):
+    _word_dictionary = None
+
     def __init__(self):
-        with open("/usr/share/dict/words", "r") as f:
-            self._word_dictionary = frozenset(f.read().splitlines())
+        self._load_words_dictionary()
 
     def find_words_from_string_letters(self, bag_of_chars):
-        letters = self._str_to_list(bag_of_chars)
+        letters = list(filter(lambda x: x.isalpha(), iter(bag_of_chars)))
 
         possible_words = self._get_possible_words(letters)
 
-        found_words_set = self._word_dictionary.intersection(possible_words)
+        found_words_set = WordBag._word_dictionary.intersection(possible_words)
 
         self._print_words(found_words_set)
 
@@ -30,9 +33,14 @@ class WordBag:
 
         results = []
         for letter in list_remaining_letters:
+            results_set = frozenset(results)
             sub_results = []
             for perm in list_curr_permutations:
-                sub_results.append(perm + letter)
+                next_perm = perm + letter
+                if next_perm in results_set:
+                    continue
+
+                sub_results.append(next_perm)
 
             rest_of_letters = list(list_remaining_letters)
             rest_of_letters.remove(letter)
@@ -41,29 +49,45 @@ class WordBag:
 
         return list_curr_permutations + results
 
-    def _print_words(self, found_words):
+    @staticmethod
+    def _load_words_dictionary():
+        if not WordBag._word_dictionary:
+            with open("/usr/share/dict/words", "r") as f:
+                WordBag._word_dictionary = frozenset(f.read().splitlines())
+
+    @staticmethod
+    def _print_words(found_words):
         found_words_list = list(found_words)
         found_words_list.sort()
         for word in found_words_list:
             print(word)
 
-    @staticmethod
-    def _str_to_list(string):
-        char_list = []
-        for c in string:
-            char_list.append(c)
 
-        return char_list
+def main():
+    parser = ArgumentParser()
+    parser.add_argument("letters", help="list of letters")
+    parser.add_argument("-b", "--benchmark", action="store_true",
+                        help="print how long the program ran for")
+
+    args = parser.parse_args()
+
+    letters = args.letters
+
+    if args.benchmark:
+        start = datetime.now()
+
+        find_words(letters)
+
+        end = datetime.now()
+        print("\nFound words in {0} milliseconds".format((end - start).microseconds / 1000))
+    else:
+        find_words(letters)
 
 
-def main(args):
-    if len(args) != 2:
-        print("Only one argument allowed.")
-        return
-
+def find_words(letters):
     wordbag = WordBag()
-    wordbag.find_words_from_string_letters(args[1])
+    wordbag.find_words_from_string_letters(letters)
 
 
 if __name__ == '__main__':
-    sys.exit(main(sys.argv))
+    sys.exit(main())
