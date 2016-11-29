@@ -76,7 +76,9 @@ def main():
         find_words(letters)
 
         end = datetime.now()
-        print("\nFound words in {0} milliseconds".format((end - start).microseconds / 1000))
+
+        delta = end - start
+        print("\nFound words in {0}".format(delta))
     else:
         find_words(letters)
 
