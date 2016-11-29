@@ -34,12 +34,9 @@ class WordBag(object):
 
         results = []
         for letter in list_remaining_letters:
-            results_set = frozenset(results)
             sub_results = []
             for perm in list_curr_permutations:
                 next_perm = perm + letter
-                if next_perm in results_set:
-                    continue
 
                 sub_results.append(next_perm)
 
