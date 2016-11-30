@@ -16,7 +16,7 @@ class WordBag(object):
 
     def __init__(self):
         self._load_words_dictionary()
-        self._combo_cache = {}
+        self._permutation_cache = {}
 
     def find_words_from_string_letters(self, bag_of_chars):
         letters = list(filter(lambda x: x.isalpha(), iter(bag_of_chars)))
@@ -31,11 +31,38 @@ class WordBag(object):
         all_combinations = self._get_power_set(letters)
         permutations = []
         for combo in all_combinations:
-            permutations += self._get_same_length_permutations_of_word(combo)
+            permutations += self._get_same_length_permutations(combo)
 
         return frozenset(permutations)
 
-    def _get_power_set(self, char_list):
+    def _get_same_length_permutations(self, word):
+        if len(word) <= 1:
+            return [word]
+
+        key = "".join(sorted(word))
+        cached = self._permutation_cache.get(key, None)
+        if cached:
+            return cached
+
+        word_list = list(word)
+
+        results = []
+
+        for index in range(0, len(word_list)):
+            letter = word_list[index]
+            other_letters = "".join(word_list[0:index] + word_list[index + 1:])
+            permutations = self._get_same_length_permutations(other_letters)
+
+            for perm in permutations:
+                perm_list = list(iter(perm))
+                perm_list.insert(0, letter)
+                results.append("".join(perm_list))
+
+        self._permutation_cache[key] = results
+        return results
+
+    @staticmethod
+    def _get_power_set(char_list):
         results = []
 
         #  when the ith selected_set is 1, the ith char in char_list is in the set
@@ -51,25 +78,6 @@ class WordBag(object):
 
             results.append(combo)
             selected_set -= 1
-
-        return results
-
-    def _get_same_length_permutations_of_word(self, word):
-        if len(word) <= 1:
-            return [word]
-
-        word_list = list(word)
-
-        results = []
-
-        for index in range(0, len(word_list)):
-            letter = word_list[index]
-            permutations = self._get_same_length_permutations_of_word(word_list[0:index] + word_list[index + 1:])
-
-            for perm in permutations:
-                perm_list = list(iter(perm))
-                perm_list.insert(0, letter)
-                results.append("".join(perm_list))
 
         return results
 
