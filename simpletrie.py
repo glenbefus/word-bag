@@ -4,7 +4,7 @@ from enum import Enum
 class SimpleTrieNode(object):
     def __init__(self):
         self._children = {}
-        self._word = False
+        self._is_word = False
 
     def get_child_at_char(self, c):
         return self._children.get(c, None)
@@ -15,10 +15,10 @@ class SimpleTrieNode(object):
         return node
 
     def is_word(self):
-        return self._word
+        return self._is_word
 
     def set_is_word(self, word):
-        self._word = word
+        self._is_word = word
 
 
 class FindWordResult(Enum):
