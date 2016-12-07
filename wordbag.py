@@ -17,7 +17,6 @@ class WordBag(object):
 
     def __init__(self):
         self._load_dictionary()
-        self._permutation_cache = {}
 
     def find_words_from_characters(self, characters):
         letters = list(filter(lambda x: x.isalpha(), iter(characters)))
@@ -29,7 +28,7 @@ class WordBag(object):
         return len(found_words_set)
 
     def _find_possible_words(self, remaining, taken=""):
-        if len(remaining) == 0:
+        if not remaining:
             return []
 
         results = []
