@@ -4,88 +4,56 @@
 #  wordbag.py
 #
 
-import math
 import sys
 from argparse import ArgumentParser
 from argparse import FileType
 from datetime import datetime
 
+from simpletrie import SimpleTrie
+
 
 class WordBag(object):
-    _word_dictionary = None
+    _dictionary_trie = None
 
     def __init__(self):
-        self._load_words_dictionary()
+        self._load_dictionary()
         self._permutation_cache = {}
 
-    def find_words_from_string_letters(self, bag_of_chars):
-        letters = list(filter(lambda x: x.isalpha(), iter(bag_of_chars)))
+    def find_words_from_characters(self, characters):
+        letters = list(filter(lambda x: x.isalpha(), iter(characters)))
 
-        possible_words = self._get_possible_words(letters)
-
-        found_words_set = WordBag._word_dictionary.intersection(possible_words)
+        found_words_set = frozenset(self._find_possible_words(letters))
 
         self._print_words(found_words_set)
 
-    def _get_possible_words(self, letters):
-        all_combinations = self._get_power_set(letters)
-        permutations = []
-        for combo in all_combinations:
-            permutations += self._get_same_length_permutations(combo)
+        return len(found_words_set)
 
-        return frozenset(permutations)
-
-    def _get_same_length_permutations(self, word):
-        if len(word) <= 1:
-            return [word]
-
-        key = "".join(sorted(word))
-        cached = self._permutation_cache.get(key, None)
-        if cached:
-            return cached
-
-        word_list = list(word)
+    def _find_possible_words(self, remaining, taken=""):
+        if len(remaining) == 0:
+            return []
 
         results = []
 
-        for index in range(0, len(word_list)):
-            letter = word_list[index]
-            other_letters = "".join(word_list[0:index] + word_list[index + 1:])
-            permutations = self._get_same_length_permutations(other_letters)
+        for index in range(0, len(remaining)):
+            letter = remaining[index]
+            possible_word = taken + letter
+            is_prefix = WordBag._dictionary_trie.find_word(possible_word)
+            if is_prefix is None:
+                continue
+            elif not is_prefix:
+                results.append(possible_word)
 
-            for perm in permutations:
-                perm_list = list(iter(perm))
-                perm_list.insert(0, letter)
-                results.append("".join(perm_list))
-
-        self._permutation_cache[key] = results
-        return results
-
-    @staticmethod
-    def _get_power_set(char_list):
-        results = []
-
-        #  when the ith selected_set is 1, the ith char in char_list is in the set
-        char_list_length = len(char_list)
-        selected_set = int(math.pow(2, char_list_length) - 1)
-
-        while selected_set > 0:
-            combo = ""
-            for i in range(0, char_list_length):
-                bit_mask = 1 << i
-                if (selected_set & bit_mask) > 0:
-                    combo += char_list[char_list_length - 1 - i]
-
-            results.append(combo)
-            selected_set -= 1
+            results += self._find_possible_words(remaining[0:index] + remaining[index + 1:], possible_word)
 
         return results
 
     @staticmethod
-    def _load_words_dictionary():
-        if not WordBag._word_dictionary:
+    def _load_dictionary():
+        if not WordBag._dictionary_trie:
             with open("/usr/share/dict/words", "r") as f:
-                WordBag._word_dictionary = frozenset(f.read().splitlines())
+                WordBag._dictionary_trie = SimpleTrie()
+                for line in f.read().splitlines():
+                    WordBag._dictionary_trie.add_word(line)
 
     @staticmethod
     def _print_words(found_words):
@@ -104,12 +72,12 @@ def main():
     if args.benchmark:
         start = datetime.now()
 
-        find_words(letters)
+        num_words_found = find_words(letters)
 
         end = datetime.now()
 
         delta = end - start
-        print("\nFound words in {0}".format(delta))
+        print("\nFound {1} words in {0}".format(delta, num_words_found))
     else:
         find_words(letters)
 
@@ -126,9 +94,9 @@ def parse_arguments():
     return parser.parse_args()
 
 
-def find_words(letters):
-    wordbag = WordBag()
-    wordbag.find_words_from_string_letters(letters)
+def find_words(characters):
+    word_bag = WordBag()
+    return word_bag.find_words_from_characters(characters)
 
 
 if __name__ == '__main__':
