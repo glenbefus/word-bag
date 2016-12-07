@@ -9,7 +9,7 @@ from argparse import ArgumentParser
 from argparse import FileType
 from datetime import datetime
 
-from simpletrie import SimpleTrie
+from simpletrie import SimpleTrie, FindWordResult
 
 
 class WordBag(object):
@@ -37,10 +37,10 @@ class WordBag(object):
         for index in range(0, len(remaining)):
             letter = remaining[index]
             possible_word = taken + letter
-            is_prefix = WordBag._dictionary_trie.find_word(possible_word)
-            if is_prefix is None:
+            is_word = WordBag._dictionary_trie.find_word(possible_word)
+            if is_word is FindWordResult.miss:
                 continue
-            elif not is_prefix:
+            elif is_word is FindWordResult.word:
                 results.append(possible_word)
 
             results += self._find_possible_words(remaining[0:index] + remaining[index + 1:], possible_word)

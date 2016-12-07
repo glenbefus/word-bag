@@ -1,7 +1,10 @@
+from enum import Enum
+
+
 class SimpleTrieNode(object):
     def __init__(self):
         self._children = {}
-        self._prefix = True
+        self._word = False
 
     def get_child_at_char(self, c):
         return self._children.get(c, None)
@@ -11,14 +14,17 @@ class SimpleTrieNode(object):
         self._children[c] = node
         return node
 
-    def is_leaf(self):
-        return len(self._children) == 0
+    def is_word(self):
+        return self._word
 
-    def is_prefix(self):
-        return self._prefix
+    def set_is_word(self, word):
+        self._word = word
 
-    def set_prefix(self, prefix):
-        self._prefix = prefix
+
+class FindWordResult(Enum):
+    miss = 1
+    prefix = 2
+    word = 3
 
 
 class SimpleTrie(object):
@@ -34,12 +40,7 @@ class SimpleTrie(object):
                 child = curr_node.add_child_at_char(char)
             curr_node = child
 
-        curr_node.set_prefix(False)
-
-    '''
-    Returns True if word is found, False if only a prefix,
-    else None.
-    '''
+        curr_node.set_is_word(True)
 
     def find_word(self, word):
         curr_node = self._root
@@ -47,7 +48,10 @@ class SimpleTrie(object):
         for char in word:
             child = curr_node.get_child_at_char(char)
             if not child:
-                return None
+                return FindWordResult.miss
             curr_node = child
 
-        return curr_node.is_prefix()
+        if curr_node.is_word():
+            return FindWordResult.word
+
+        return FindWordResult.prefix
