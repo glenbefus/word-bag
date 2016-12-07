@@ -1,6 +1,3 @@
-from enum import Enum
-
-
 class SimpleTrieNode(object):
     def __init__(self):
         self._children = {}
@@ -19,12 +16,6 @@ class SimpleTrieNode(object):
 
     def set_is_word(self, word):
         self._is_word = word
-
-
-class FindWordResult(Enum):
-    miss = 1
-    prefix = 2
-    word = 3
 
 
 class SimpleTrie(object):
@@ -48,10 +39,30 @@ class SimpleTrie(object):
         for char in word:
             child = curr_node.get_child_at_char(char)
             if not child:
-                return FindWordResult.miss
+                return False
             curr_node = child
 
-        if curr_node.is_word():
-            return FindWordResult.word
+        return curr_node.is_word()
 
-        return FindWordResult.prefix
+    def find_possible_words(self, letters):
+        return self._find_possible_words(self._root, letters)
+
+    def _find_possible_words(self, curr_node, remaining, taken=""):
+        if not remaining:
+            return []
+
+        results = []
+
+        for index in range(0, len(remaining)):
+            letter = remaining[index]
+            child = curr_node.get_child_at_char(letter)
+            if not child:
+                continue
+
+            possible_word = taken + letter
+            if child.is_word():
+                results.append(possible_word)
+
+            results += self._find_possible_words(child, remaining[0:index] + remaining[index + 1:], possible_word)
+
+        return results

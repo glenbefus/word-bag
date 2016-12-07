@@ -9,7 +9,7 @@ from argparse import ArgumentParser
 from argparse import FileType
 from datetime import datetime
 
-from simpletrie import SimpleTrie, FindWordResult
+from simpletrie import SimpleTrie
 
 
 class WordBag(object):
@@ -20,31 +20,13 @@ class WordBag(object):
 
     def find_words_from_characters(self, characters):
         letters = list(filter(lambda x: x.isalpha(), iter(characters)))
-
         found_words_set = frozenset(self._find_possible_words(letters))
-
         self._print_words(found_words_set)
-
         return len(found_words_set)
 
-    def _find_possible_words(self, remaining, taken=""):
-        if not remaining:
-            return []
-
-        results = []
-
-        for index in range(0, len(remaining)):
-            letter = remaining[index]
-            possible_word = taken + letter
-            is_word = WordBag._dictionary_trie.find_word(possible_word)
-            if is_word is FindWordResult.miss:
-                continue
-            elif is_word is FindWordResult.word:
-                results.append(possible_word)
-
-            results += self._find_possible_words(remaining[0:index] + remaining[index + 1:], possible_word)
-
-        return results
+    @staticmethod
+    def _find_possible_words(letters):
+        return WordBag._dictionary_trie.find_possible_words(letters)
 
     @staticmethod
     def _load_dictionary():
@@ -70,13 +52,11 @@ def main():
 
     if args.benchmark:
         start = datetime.now()
-
         num_words_found = find_words(letters)
-
         end = datetime.now()
 
         delta = end - start
-        print("\nFound {1} words in {0}".format(delta, num_words_found))
+        print("\nFound {0} words in {1}".format(num_words_found, delta))
     else:
         find_words(letters)
 
