@@ -20,7 +20,7 @@ class WordBag(object):
 
     def find_words_from_characters(self, characters):
         letters = list(filter(lambda x: x.isalpha(), iter(characters)))
-        found_words_set = frozenset(self._find_possible_words(letters))
+        found_words_set = self._find_possible_words(letters)
         self._print_words(found_words_set)
         return len(found_words_set)
 
