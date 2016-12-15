@@ -45,7 +45,7 @@ class SimpleTrie(object):
         return curr_node.is_word()
 
     def find_possible_words(self, letters):
-        return self._find_possible_words(self._root, letters)
+        return frozenset(self._find_possible_words(self._root, letters))
 
     def _find_possible_words(self, curr_node, remaining, taken=""):
         if not remaining:
